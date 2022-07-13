@@ -1,17 +1,39 @@
-#ifndef MONTY_H
-#define MONTY_H
+#ifndef _MONTY_
+#define _MONTY_
 
-/** Libraries **/
+/* Constants */
+#define SUCSS_OP		0
+#define VALID_PARM		0
+#define MIN_ARGS		2
+#define METH_STACK		300
+#define METH_QUEUE		301
 
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+/* Common Errors */
+#define ERR_BAD_INST	100
+#define ERR_BAD_MALL	101
+#define ERR_INVLD_PARM	102
+
+/* Usage Errors */
+#define ERR_ARG_USG		200
+#define ERR_PUSH_USG	201
+#define ERR_PINT_USG	202
+#define ERR_POP_USG		203
+#define ERR_SWAP_USG	204
+#define ERR_ADD_USG		205
+#define ERR_SUB_USG		206
+#define ERR_DIV_USG		207
+#define ERR_DIV_ZRO		208
+#define ERR_MUL_USG		209
+#define ERR_MOD_USG		210
+#define ERR_PCH_USG		211
+#define ERR_PCH_EMP		212
+
 #include <ctype.h>
-
-/** Structs **/
+#include <fcntl.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
@@ -29,7 +51,6 @@ typedef struct stack_s
 	struct stack_s *next;
 } stack_t;
 
-
 /**
  * struct instruction_s - opcode and its function
  * @opcode: the opcode
@@ -44,62 +65,36 @@ typedef struct instruction_s
 	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
 
-/**
- * struct global_var - contains global variables
- * @mode: 0 stack, 1 queue (default stack)
- * @gbuff: getline buffer;
- * @n: argument of opcode (value of stack)
- * @head: head of stack
- * @line_number: keeps track of current line #
- * @fp: pointer to file descriptor
- *
- * Description: Struct for keeping global vars
- *
- */
+extern stack_t *head;
 
-/** Global **/
+void check_args_num(int argn);
+FILE *open_file(char *filename);
+void check_access_rights(char *filename);
+int check_push_param(char *param);
+int check_digits(char *s);
+void frees_stack(void);
+int handle_execution(char *op_code, char *op_param, unsigned int line, int m);
+void handle_error(int errno, char *opcode, unsigned int line, char *buff);
+void handle_cerror(int errno, char *opcode, unsigned int line);
+void handle_uerror(int errno, unsigned int line);
+void handle_more_uerror(int errno, unsigned int line);
+void (*pick_func(char *s))(stack_t **, unsigned int);
+unsigned int count_stack(stack_t *stack);
+void push(stack_t **stack, unsigned int param);
+void push_queue(stack_t **stack, unsigned int param);
+void pall(stack_t **stack, unsigned int line_number);
+void pint(stack_t **stack, unsigned int line_number);
+void pop(stack_t **stack, unsigned int line_number);
+void swap(stack_t **stack, unsigned int line_number);
+void add(stack_t **stack, unsigned int line_number);
+void nop(stack_t **stack, unsigned int line_number);
+void sub(stack_t **stack, unsigned int line_number);
+void divide(stack_t **stack, unsigned int line_number);
+void mul(stack_t **stack, unsigned int line_number);
+void mod(stack_t **stack, unsigned int line_number);
+void pchar(stack_t **stack, unsigned int line_number);
+void pstr(stack_t **stack, unsigned int line_number);
+void rotl(stack_t **stack, unsigned int line_number);
+void rotr(stack_t **stack, unsigned int line_number);
 
-typedef struct global_var
-{
-	int mode;
-	char *gbuff;
-	char *n;
-	stack_t *head;
-	unsigned int line_number;
-	FILE *fp;
-} global_m;
-
-extern global_m globm;
-
-/** Opcode Functions **/
-
-void _push(stack_t **stack, unsigned int line_number);
-void _pall(stack_t **stack, unsigned int line_number);
-void _pint(stack_t **stack, unsigned int line_number);
-void _pop(stack_t **stack, unsigned int line_number);
-void _swap(stack_t **stack, unsigned int line_number);
-void _add(stack_t **stack, unsigned int line_number);
-void _nop(stack_t **stack, unsigned int line_number);
-void _sub(stack_t **stack, unsigned int line_number);
-void _div(stack_t **stack, unsigned int line_number);
-void _mul(stack_t **stack, unsigned int line_number);
-void _mod(stack_t **stack, unsigned int line_number);
-void _pchar(stack_t **stack, unsigned int line_number);
-void _pstr(stack_t **stack, unsigned int line_number);
-void _rotl(stack_t **stack, unsigned int line_number);
-void _rotr(stack_t **stack, unsigned int line_number);
-void _stack(stack_t **stack, unsigned int line_number);
-void _queue(stack_t **stack, unsigned int line_number);
-
-/** Aux Functions **/
-int get_opcode(char *opcode);
-void exit_op(void);
-
-stack_t *add_dnodeint(stack_t **head, const int n);
-stack_t *add_dnodeint_end(stack_t **head, const int n);
-int delete_node_index(stack_t **head, unsigned int index);
-void free_stack_t(stack_t *head);
-
-int _isnumber(char *s);
-
-#endif /* MONTY_H */
+#endif
